@@ -97,6 +97,18 @@ export function transformClickUpToMotion(
 		motionPayload.dueDate = dueDateISO;
 	}
 
+	// Time Estimate (ClickUp -> Motion)
+	if (clickUpTask.time_estimate && clickUpTask.time_estimate > 0) {
+		try {
+			const durationMinutes = Math.round(clickUpTask.time_estimate / 60000); // Convert ms to minutes
+			if (durationMinutes > 0) {
+				motionPayload.duration = durationMinutes;
+			}
+		} catch (e) {
+			console.warn(`ClickUp Task ${clickUpTask.id}: Failed to parse time_estimate: ${clickUpTask.time_estimate}`, e);
+		}
+	}
+
 	// Assignees
 	if (clickUpTask.assignees && clickUpTask.assignees.length > 0) {
 		motionPayload.assigneeIds = clickUpTask.assignees
@@ -146,8 +158,24 @@ export function transformMotionToClickUp(motionTask: MotionTask): ClickUpUpdateP
 		// No change to ClickUp status if Motion task is not complete
 	}
 
-	// Return payload only if there's something to update (handles potential null dueDate)
-	if (clickupPayload.due_date !== undefined || clickupPayload.status !== undefined) {
+	// --- Duration Update (Motion -> ClickUp) ---
+	if (motionTask.duration && motionTask.duration > 0) {
+		try {
+			const estimateMs = Math.round(motionTask.duration * 60000); // Convert minutes to ms
+			if (estimateMs > 0) {
+				clickupPayload.time_estimate = estimateMs;
+			}
+		} catch (e) {
+			console.warn(`Motion Task ${motionTask.id}: Failed to parse duration: ${motionTask.duration}`, e);
+		}
+	} else if (motionTask.duration === 0) {
+		// Optionally handle setting estimate to 0 or clearing it
+		// clickupPayload.time_estimate = 0; // Set to 0
+		clickupPayload.time_estimate = null; // Set to null to potentially clear it in ClickUp
+	}
+
+	// Return payload only if there's something to update
+	if (Object.keys(clickupPayload).length > 0) {
 		return clickupPayload;
 	} else {
 		return {};

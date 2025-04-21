@@ -111,15 +111,15 @@ export interface MotionAutoSchedulePayload {
 }
 
 export interface MotionCreatePayload {
-	workspaceId: string;
 	name: string;
-	description?: string; // HTML expected by Motion?
-	dueDate?: string; // ISO 8601 format
+	description?: string;
+	dueDate?: string; // ISO 8601 format YYYY-MM-DD
+	priority?: 'ASAP' | 'High' | 'Medium' | 'Low';
+	projectId?: string;
+	workspaceId: string;
 	assigneeIds?: string[];
+	duration?: number; // Duration in minutes
 	autoScheduled?: MotionAutoSchedulePayload | null; // Add optional autoScheduled field (NEW)
-	//priority?: 'ASAP' | 'HIGH' | 'MEDIUM' | 'LOW';
-	//duration?: number; // In minutes
-	// other fields like projectId, labels?
 }
 
 export interface MotionUpdatePayload {
@@ -149,12 +149,10 @@ export interface ClickUpCreatePayload {
 
 export interface ClickUpUpdatePayload {
 	name?: string;
-	markdown_description?: string;
-	// description?: string; // Use markdown if possible
-	due_date?: number | null; // Unix timestamp ms, or null to clear
-	// due_date_time?: boolean;
-	status?: string; // The name of the target status
-	// assignee operations might be complex (add/remove vs set)
-	// time_estimate?: number | null;
-	// priority?: number | null; // 1-4 or null to clear
+	description?: string;
+	due_date?: number | null; // Unix timestamp in milliseconds
+	status?: string;
+	time_estimate?: number | null; // Time estimate in milliseconds
+	// Note: ClickUp API uses boolean for due_date_time, handle separately if needed.
+	// Note: Assignees require adding/removing, not direct setting in update.
 } 
