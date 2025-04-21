@@ -30,6 +30,15 @@ export interface TaskLink {
 	last_updated?: string | null;
 }
 
+/**
+ * Represents a row in the UserMappings D1 table (NEW)
+ */
+export interface UserMapping {
+	clickup_user_id: number;
+	motion_user_id: string;
+	description?: string | null;
+}
+
 // --- ClickUp Specific Types (Simplified) ---
 
 export interface ClickUpTask {
@@ -40,8 +49,8 @@ export interface ClickUpTask {
 	date_created: string;
 	date_updated: string;
 	date_closed: string | null;
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	assignees: any[]; // Define more strictly if needed
+	// Use specific type for assignees now
+	assignees: { id: number; /* include other fields like email/username if needed */ }[];
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	custom_fields: { id: string; value?: any; [key: string]: any }[];
 	text_content?: string | null; // Plain text description
@@ -92,12 +101,22 @@ export interface MotionUser {
 
 // --- Common Sync Payloads ---
 
+/**
+ * Structure for Motion's autoSchedule parameter (NEW)
+ */
+export interface MotionAutoSchedulePayload {
+	startDate: string; // YYYY-MM-DD
+	deadlineType: 'HARD' | 'SOFT' | 'NONE';
+	schedule: 'Work Hours' | string; // 'Work Hours' is common, but other schedule names might exist
+}
+
 export interface MotionCreatePayload {
 	workspaceId: string;
 	name: string;
 	description?: string; // HTML expected by Motion?
 	dueDate?: string; // ISO 8601 format
 	assigneeIds?: string[];
+	autoScheduled?: MotionAutoSchedulePayload | null; // Add optional autoScheduled field (NEW)
 	//priority?: 'ASAP' | 'HIGH' | 'MEDIUM' | 'LOW';
 	//duration?: number; // In minutes
 	// other fields like projectId, labels?

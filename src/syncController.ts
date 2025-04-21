@@ -31,7 +31,7 @@ Last Sync: ${lastSync}
 --------------------------------`);
 
 		try {
-			await processSyncPair(mapping, lastSync, db, clickupClient, motionClient);
+			await processSyncPair(mapping, lastSync, db, clickupClient, motionClient, config.userMap);
 
 			// Update the timestamp in D1 only if processing was successful
 			await updateSyncTimestamp(db, mappingId, currentSyncStartTimeISO);

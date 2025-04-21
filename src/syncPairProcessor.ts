@@ -1,4 +1,10 @@
-import type { SyncMapping, ClickUpTask, MotionTask, ClickUpUpdatePayload } from './types';
+import type {
+	SyncMapping,
+	ClickUpTask,
+	MotionTask,
+	ClickUpUpdatePayload,
+	UserMapping,
+} from './types';
 import { ClickUpClient } from './clickupClient';
 import { MotionClient } from './motionClient';
 import {
@@ -22,6 +28,7 @@ import {
  * @param db - The D1 Database instance.
  * @param clickupClient - Instance of ClickUpClient.
  * @param motionClient - Instance of MotionClient.
+ * @param userMap - Map of ClickUp user IDs to Motion user IDs.
  */
 export async function processSyncPair(
 	mapping: SyncMapping,
@@ -29,6 +36,7 @@ export async function processSyncPair(
 	db: D1Database,
 	clickupClient: ClickUpClient,
 	motionClient: MotionClient,
+	userMap: Map<number, string>,
 ): Promise<void> {
 	const { clickup_list_id: clickupListId, motion_workspace_id: motionWorkspaceId } = mapping;
 
@@ -56,7 +64,11 @@ export async function processSyncPair(
 			console.log(` -> New/Unlinked ClickUp Task ${clkTask.id} (${clkTask.name}). Creating in Motion...`);
 			try {
 				// Transform data for Motion (Name, Description, Initial Due Date)
-				const motionPayload = transformClickUpToMotion(clkTask, motionWorkspaceId);
+				const motionPayload = transformClickUpToMotion(
+					clkTask,
+					motionWorkspaceId,
+					userMap,
+				);
 
 				// Create the task in Motion
 				const newMotionTask = await motionClient.createTask(motionPayload);
