@@ -109,14 +109,20 @@ export function transformClickUpToMotion(
 		}
 	}
 
-	// Assignees
+	// Assignees (Map to single Motion Assignee)
 	if (clickUpTask.assignees && clickUpTask.assignees.length > 0) {
-		motionPayload.assigneeIds = clickUpTask.assignees
+		const motionAssigneeIds = clickUpTask.assignees
 			.map((assignee) => userMap.get(assignee.id))
 			.filter((motionId): motionId is string => !!motionId); // Filter out undefined/null results
-		
-		if (motionPayload.assigneeIds.length !== clickUpTask.assignees.length) {
-			console.warn(`ClickUp Task ${clickUpTask.id}: Not all assignees could be mapped to Motion users.`);
+
+		if (motionAssigneeIds.length > 0) {
+			motionPayload.assigneeId = motionAssigneeIds[0]; // Take the first mapped assignee
+			if (clickUpTask.assignees.length > 1) {
+				console.warn(`ClickUp Task ${clickUpTask.id}: Multiple assignees found (${clickUpTask.assignees.length}), but only syncing the first mapped assignee (${motionAssigneeIds[0]}) to Motion.`);
+			}
+		} else if (clickUpTask.assignees.length > 0) {
+			// This case means there were ClickUp assignees, but none could be mapped
+			console.warn(`ClickUp Task ${clickUpTask.id}: Has assignees, but none could be mapped to Motion users.`);
 		}
 	}
 

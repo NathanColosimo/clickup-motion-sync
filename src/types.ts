@@ -117,7 +117,7 @@ export interface MotionCreatePayload {
 	priority?: 'ASAP' | 'High' | 'Medium' | 'Low';
 	projectId?: string;
 	workspaceId: string;
-	assigneeIds?: string[];
+	assigneeId?: string; // Assignee ID (singular)
 	duration?: number; // Duration in minutes
 	autoScheduled?: MotionAutoSchedulePayload | null; // Add optional autoScheduled field (NEW)
 }
